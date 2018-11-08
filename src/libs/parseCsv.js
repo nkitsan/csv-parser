@@ -23,28 +23,32 @@ module.exports.parseCsv = function(fileName) {
 function validateUsers(users){
     const filename = Date.now().toString();
     let writeStream = fs.createWriteStream(filename+'.csv');
-    if (!users.errors.length){
-        let correctUsers = [];
-        let invalidUsersInfo = [];
-        for (let user of users.data){
-            const validationResult = Joi.validate(user, userSchema);
-            if (validationResult.error){
-                invalidUsersInfo.push(...validationResult.error.details);
-            }
-            else{
-                correctUsers.push(validationResult.value);
-            }
+    if (users.errors.length){
+        writeStream.write(Papa.unparse(users.errors));
+        return filename;
+    }
+    let correctUsers = [];
+    let invalidUsersInfo = [];
+    for (let user of users.data){
+        const validationResult = Joi.validate(user, userSchema);
+        if (validationResult.error){
+            invalidUsersInfo.push(...validationResult.error.details);
         }
-        if (correctUsers.length){
-            writeToDb(correctUsers);
-        }
-        if (invalidUsersInfo.length){
-            writeStream.write(Papa.unparse(invalidUsersInfo));
+        else{
+            correctUsers.push(validationResult.value);
         }
     }
-    else {
-        writeStream.write(users.errors);
+    if (correctUsers.length){
+        writeToDb(correctUsers);
     }
+    if (invalidUsersInfo.length){
+        writeStream.write(Papa.unparse(invalidUsersInfo));
+    }
+    if (!invalidUsersInfo.length){
+        const response = [['status', 'message'],['200 OK', 'Successful validation']];
+        writeStream.write(Papa.unparse(response));
+    }
+    return filename;
 }
 
 function writeToDb(users) {
