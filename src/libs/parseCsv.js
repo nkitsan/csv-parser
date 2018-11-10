@@ -4,7 +4,7 @@ const fs = require('fs');
 const mongoClient = require("mongodb").MongoClient;
 const userSchema = require('./config');
 
-module.exports.parseCsv = function(fileName) {
+module.exports.parseCsv = function(fileName, outputDirectory) {
     let data = '';
     let users = [];
     let readStream = fs.createReadStream(fileName, 'utf8');
@@ -16,13 +16,13 @@ module.exports.parseCsv = function(fileName) {
             header: true,
             newline: "\r\n"
         });
-        return validateUsers(users);
+        return validateUsers(users, outputDirectory);
     });
 };
 
-function validateUsers(users){
-    const filename = Date.now().toString();
-    let writeStream = fs.createWriteStream(filename+'.csv');
+function validateUsers(users, outputDirectory){
+    const filename = outputDirectory+Date.now().toString()+'.csv';
+    let writeStream = fs.createWriteStream(filename);
     if (users.errors.length){
         writeStream.write(Papa.unparse(users.errors));
         return filename;
