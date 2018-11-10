@@ -32,7 +32,9 @@ function validateUsers(users, outputDirectory){
     for (let user of users.data){
         const validationResult = Joi.validate(user, userSchema);
         if (validationResult.error){
-            invalidUsersInfo.push(...validationResult.error.details);
+            invalidUsersInfo.push(Object.assign({},
+                                                {message: validationResult.error.details[0]['message']},
+                                                validationResult.error["_object"]));
         }
         else{
             correctUsers.push(validationResult.value);

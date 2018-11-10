@@ -4,8 +4,8 @@ const Joi = JoiBase.extend(JoiExtension);
 
 
 const userSchema = {
-    firstName: Joi.string().regex(/^(\w+)$/, 'name').required(),
-    lastName: Joi.string().regex(/^(\w+)$/, 'name').required(),
+    firstName: Joi.string().regex(/^[a-zA-Z]+$/, 'name').required(),
+    lastName: Joi.string().regex(/^[a-zA-Z]+$/, 'name').required(),
     age: Joi.number().min(1).max(99).integer().required(),
     email: Joi.string().email().required(),
     phone: Joi.string()
